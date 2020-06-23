@@ -8,9 +8,9 @@ export default {
      * @param {*} limit  记录数
      * @param {*} teacherQuery 条件对象
      */
-    getTeacherListByPage(current,limit,teacherQuery){
+    getTeacherListByPage(current,pageSize,teacherQuery){
         return request({
-            url: '/eduService/teacher/pageTeacherCondition/'+current+'/' + limit,
+            url: '/eduService/teacher/pageTeacherCondition/'+current+'/' + pageSize,
             method: 'post',
             data: teacherQuery
         })
