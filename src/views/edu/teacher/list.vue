@@ -2,31 +2,34 @@
 <div>
     <el-form :inline="true" :model="teacherQuery" class="demo-form-inline form_margin_top">
         <el-form-item label="姓名">
-            <el-input v-model="teacherQuery.name" maxlength="10" placeholder="姓名"></el-input>
+            <el-input v-model="teacherQuery.name" size="small" style="width: 100px" maxlength="10" placeholder="姓名"></el-input>
         </el-form-item>
-        <el-form-item label="级别">
-            <el-select v-model="teacherQuery.level" placeholder="讲师级别">
+        <el-form-item label="级别" class="input_size_form">
+            <el-select v-model="teacherQuery.level" placeholder="讲师级别" size="small" style="width: 100px" >
                 <el-option label="高级讲师" value="1"></el-option>
                 <el-option label="首席讲师" value="2"></el-option>
             </el-select>
         </el-form-item>
-        <el-form-item label="开始时间">
+        <el-form-item label="开始时间" size="small">
             <el-date-picker
                 v-model="teacherQuery.begin"
                 type="datetime"
                 placeholder="选择日期时间"
-                align="right">
+                align="right"
+                style="width: 150px">
             </el-date-picker>
         </el-form-item>
-        <el-form-item label="结束时间">
+        <el-form-item label="结束时间" size="small">
             <el-date-picker
                 v-model="teacherQuery.end"
                 type="datetime"
                 placeholder="选择日期时间"
-                align="right">
+                align="right"
+                style="width: 150px">
             </el-date-picker>
         </el-form-item>
-        <el-button type="primary" @click="getTeacherList">查询</el-button>
+        <el-button type="danger" size="small"  @click="resetForm">重置</el-button>
+        <el-button type="primary" @click="getTeacherList" size="small">查询</el-button>
 </el-form>
    <el-table
     :data="teacherList"
@@ -93,12 +96,18 @@
       label="操作"
       align="center"
       width="150">
+      <template slot-scope="scope">
         <el-tooltip class="item" effect="dark" content="修改" placement="top">
-            <el-button type="primary" icon="el-icon-edit" circle></el-button>
+            <router-link :to="'/teacher/update/' + scope.row.id" >
+                <el-button type="primary" icon="el-icon-edit" size="small"></el-button>
+            </router-link>
         </el-tooltip>
+        
         <el-tooltip class="item" effect="dark" content="删除" placement="top">
-            <el-button type="danger" icon="el-icon-delete" circle></el-button>
+        <!-- <el-button type="danger" icon="el-icon-delete" size="small" @click="deleteTeacherById(scope.row.id)" slot="reference"></el-button> -->
+        <el-button type="danger" icon="el-icon-delete" size="small" @click="deleteTeacherById(scope.row.id)"></el-button>
         </el-tooltip>
+        </template>
     </el-table-column>
   </el-table>
   
@@ -160,7 +169,35 @@ export default {
         handleCurrentChange(page) {
         this.page = page
         this.getTeacherList()
+        },
+        //清除查询条件
+        resetForm(){
+            //清除查询条件
+            this.teacherQuery = {};
+            //查询所有
+            this.getTeacherList()
+        },
+        //删除讲师
+        deleteTeacherById(id){
+            
+            this.$confirm('此操作将永久删除该条记录, 是否继续?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+            }).then(() => {
+                // alert(id)
+                teacher.deleteTeacherById(id)
+                    .then(res => {
+                        this.$message({
+                            type: 'success',
+                            message: '删除成功!'
+                        });
+                        this.getTeacherList();
+                    })
+                    
+            })
         }
+        
     }
     
 }
@@ -168,5 +205,8 @@ export default {
 <style lang="css">
   .el-tooltip__popper{font-size: 14px; max-width:50% } /*设置显示隐藏部分内容，按50%显示*/
   .el-pagination {text-align: center} /*分页组件居中*/
-  .form_margin_top {margin-top: 2%; width: 100%;}
+  .form_margin_top {margin-top: 20px; width: 100%;margin-bottom: -19px;
+    margin-left: 2%;
+    margin-right: 2%;};
+  /* .input_size_form{width: 120px} */
   </style>
