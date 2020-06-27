@@ -1,50 +1,64 @@
 <template>
     <div>
-        <el-form :model="teacher" :rules="rules" ref="teacher" label-width="100px" style="margin-top:20px" class="demo-ruleForm">
-        <el-form-item label="姓名" prop="teacher.name">
+        <el-form :model="teacher" :rules="rules" ref="teacher" label-width="100px" style="margin-top:20px;" class="demo-ruleForm">
+        <el-form-item label="姓名" prop="name">
             <el-input v-model="teacher.name" style="width: 400px" placeholder="请输入姓名"></el-input>
         </el-form-item>
         <el-form-item label="讲师级别">
             <el-select v-model="teacher.level" placeholder="请选择讲师级别" style="width: 400px" >
-            <el-option label="高级讲师" value="1"></el-option>
-            <el-option label="首席讲师" value="2"></el-option>
+            <el-option label="高级讲师" :value="0"></el-option>
+            <el-option label="首席讲师" :value="1"></el-option>
             </el-select>
         </el-form-item>
-        <el-form-item label="讲师简介" prop="teacher.intro">
+        <el-form-item label="讲师简介" prop="intro">
             <el-input type="textarea" v-model="teacher.intro" style="width: 400px"></el-input>
         </el-form-item>
-        <el-form-item label="讲师资历" prop="teacher.career">
+        <el-form-item label="讲师资历" prop="career">
             <el-input type="textarea" v-model="teacher.career" style="width: 400px"></el-input>
         </el-form-item>
-        <el-form-item label="讲师排序" prop="teacher.sort">
+        <el-form-item label="讲师排序" prop="sort">
             <el-input-number v-model="teacher.sort" controls-position="right" :min="0" :max="10" style="width: 400px"></el-input-number>
         </el-form-item>
-        <el-form-item label="头像" prop="teacher.avatar">
-            <el-upload
-                class="upload-demo"
-                drag
-                action="https://jsonplaceholder.typicode.com/posts/"
-                multiple>
-                <i class="el-icon-upload"></i>
-                <div class="el-upload__text"style="width:400px">将文件拖到此处，或<em>点击上传</em></div>
-                <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过500kb</div>
-            </el-upload>
+        <el-form-item label="头像">
+            <!-- 头衔缩略图 -->
+          <pan-thumb :image="teacher.avatar"/>
+          <!-- 文件上传按钮 -->
+          <el-button type="primary" icon="el-icon-upload" @click="imagecropperShow=true">更换头像
+          </el-button>
+            <!-- v-show：是否显示上传组件
+              :key：类似于id，如果一个页面多个图片上传控件，可以做区分
+              :url：后台上传的url地址
+              @close：关闭上传组件
+              @crop-upload-success：上传成功后的回调 -->
+          <image-cropper
+                v-show="imagecropperShow"
+                :width="300"
+                :height="300"
+                :key="imagecropperKey"
+                :url="BASE_API+'/edu/oss/upload'"
+                field="file"
+                @close="close"
+                @crop-upload-success="cropSuccess"/>
         </el-form-item>
         <el-form-item>
-            <el-button type="primary" :disabled="saveBtnDisabled" @click="submitForm('teacher')">立即添加</el-button>
+            <el-button type="primary" :disabled="saveBtnDisabled" @click="saveOrUpdate('teacher')">保存</el-button>
             <el-button @click="resetForm('teacher')">重置</el-button>
         </el-form-item>
         </el-form>
     </div>
 </template>
 <script>
-    import teacherJs from '@/api/edu/teacher'
-
+  import teacherJs from '@/api/edu/teacher'
+  import ImageCropper from '@/components/ImageCropper'
+  import PanThumb from '@/components/PanThumb'
   export default {
+    //声明组件
+    components:{ImageCropper,PanThumb},
     data() {
       return {
         teacher: {
-            sort: 0
+            sort: 0,
+            level: 1
         },
         rules: {
           name: [
@@ -61,7 +75,13 @@
             { required: true, message: '请填写资历', trigger: 'blur' }
           ]
         },
-        saveBtnDisabled: false
+        //保存按钮是否禁用
+        saveBtnDisabled: false,
+        //上传弹框
+        imagecropperShow: false,
+        imagecropperKey: 0,
+        BASE_API: process.env.VUE_APP_BASE_API
+
       };
     },
     created(){
@@ -91,8 +111,9 @@
           }
         });
       },
+      //重置
       resetForm(teacher) {
-        this.$refs[formName].resetFields();
+        this.$refs[teacher].resetFields();
       },
 
       //根据讲师id查询信息 回显
@@ -101,6 +122,53 @@
             .then( res => {
                 this.teacher = res.data.teacher;
             })
+      },
+
+      //判断是添加还是修改
+      saveOrUpdate(teacher){
+        if(this.teacher.id){
+          this.updateTeacher(teacher);
+        }else {
+          this.submitForm(teacher);
+        }
+
+      },
+      //修改讲师信息
+      updateTeacher(teacher){
+        this.$refs[teacher].validate((valid) => {
+          if (valid) {
+              teacherJs.updateTeacher(this.teacher)
+                .then(res => {
+                    this.$message({
+                            type: 'success',
+                            message: '修改成功!'
+                    });
+                    //l路由跳转到列表界面
+                    this.$router.push({path:'/teacher/list'});
+
+                })
+            console.log(this.teacher)
+          } else {
+            return false;
+          }
+        });
+      },
+
+      /**
+       * 关闭上传弹框
+       */
+      close(){
+        this.imagecropperShow = false;
+        this.imagecropperKey = this.imagecropperKey + 1;
+      },
+
+      /**
+       * 上传成功回调
+       */
+      cropSuccess(data){
+        this.teacher.avatar = data.url;
+        this.imagecropperKey = this.imagecropperKey + 1;
+        this.imagecropperShow = false;
       }
     }
   }
