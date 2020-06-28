@@ -135,12 +135,19 @@ export default {
       BASE_API: process.env.VUE_APP_BASE_API,
       // 上传弹框
       imagecropperShow: false,
-      imagecropperKey: 0
+      imagecropperKey: 0,
+      courseId: ''
 
     }
   },
   created() {
     console.log('info created')
+    // 获取路由中的id
+    if (this.$route.params.id) {
+      this.courseId = this.$route.params.id
+      this.getCourseInfo()
+    }
+
     // 查询讲师列表
     this.getTeacherList()
     // 查询课程分类
@@ -158,7 +165,6 @@ export default {
       this.courseInfo.subjectParentId = checkedNodes[0].value
       // 二级分类id
       this.courseInfo.subjectId = checkedNodes[0].parent.value
-      alert(this.courseInfo.subjectId)
       this.$refs[courseInfo].validate((valid) => {
         if (valid) {
           // 添加课程
@@ -175,6 +181,14 @@ export default {
           return false
         }
       })
+    },
+
+    // 查询课程信息
+    getCourseInfo() {
+      courseApi.getCourseInfoById(this.courseId)
+        .then(resp => {
+          this.courseInfo = resp.data.courseInfo
+        })
     },
 
     // 查询所有讲师
