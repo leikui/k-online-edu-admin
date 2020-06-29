@@ -66,7 +66,7 @@
         <el-input-number v-model="courseInfo.price" :min="0" :precision="2" controls-position="right" placeholder="免费课程请设置为0元" /> 元
       </el-form-item>
       <el-form-item>
-        <el-button :disabled="saveBtnDisabled" type="primary" @click="saveOrUpdate('courseRef')">保存并下一步</el-button>
+        <el-button :disabled="saveBtnDisabled" type="primary" @click="ifUpdateOrsave('courseRef')">保存并下一步</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -83,7 +83,9 @@ export default {
   data() {
     return {
       saveBtnDisabled: false, // 保存按钮是否禁用
+      key1: 0,
       courseInfo: {
+        id: '',
         title: '',
         subjectId: '', // 二级分类
         subjectParentId: '', // 一级分类
@@ -141,26 +143,24 @@ export default {
     }
   },
   created() {
+
     console.log('info created')
+    // 查询讲师列表
+    this.getTeacherList()
+    // 查询课程分类
+    this.getSubjectList()
     // 获取路由中的id
     if (this.$route.params.id) {
       this.courseId = this.$route.params.id
       this.getCourseInfo()
     }
-
-    // 查询讲师列表
-    this.getTeacherList()
-    // 查询课程分类
-    this.getSubjectList()
   },
+
   methods: {
-    saveOrUpdate(courseInfo) {
+
+    saveCourseInfo(courseInfo) {
       console.log('next')
       const checkedNodes = this.$refs['subjectNode'].getCheckedNodes()
-      console.log(checkedNodes) // 获取当前点击的节点
-      console.log(checkedNodes[0].data.value) // 获取当前点击的节点的label
-      console.log(checkedNodes[0].value) // 获取由 label 组成的数组
-      console.log(checkedNodes[0].parent.value) // 获取由 label 组成的数组
       // 一级分类id
       this.courseInfo.subjectParentId = checkedNodes[0].value
       // 二级分类id
@@ -182,12 +182,35 @@ export default {
         }
       })
     },
+    updateCourseInfo(courseInfo){
+      const checkedNodes = this.$refs['subjectNode'].getCheckedNodes()
+      // 一级分类id
+      this.courseInfo.subjectParentId = checkedNodes[0].value
+      // 二级分类id
+      this.courseInfo.subjectId = checkedNodes[0].parent.value
+      this.$refs[courseInfo].validate((valid) => {
+        if (valid) {
+          // 修改课程
+          courseApi.addCourseInfo(this.courseInfo)
+            .then(res => {
+              this.$message({
+                type: 'success',
+                message: '修改课程信息成功！'
+              })
+              this.$router.push({ path: '/course/chapter/' + this.courseId  })
+            })
+        } else {
+          return false
+        }
+      })
+    },
 
     // 查询课程信息
     getCourseInfo() {
       courseApi.getCourseInfoById(this.courseId)
         .then(resp => {
           this.courseInfo = resp.data.courseInfo
+          console.log(this.courseInfo)
         })
     },
 
@@ -200,6 +223,7 @@ export default {
     },
     // 查询课程分类
     getSubjectList() {
+      this.key1 = this.key1 + 1
       subjectApi.getSubjectTree()
         .then(res => {
           // 调用递归方法，去除级联数据后将数据赋值给级联选择器
@@ -239,8 +263,17 @@ export default {
         this.$message.error('上传图片大小不能超过 2MB!')
       }
       return fileType && isLt2M
-    }
+    },
 
+    //判断添加还是修改
+
+    ifUpdateOrsave(courseInfo){
+      if (!this.courseInfo.id){
+        this.saveCourseInfo(courseInfo)
+      }else {
+        this.updateCourseInfo(courseInfo)
+      }
+    }
   }
 }
 </script>

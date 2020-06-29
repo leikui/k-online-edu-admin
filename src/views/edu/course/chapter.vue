@@ -7,7 +7,23 @@
       <el-step title="提交审核" />
     </el-steps>
 
-    <el-button type="text">添加章节</el-button>
+    <!-- Form -->
+    <el-button type="text" @click="dialogFormVisible = true">添加章节</el-button>
+
+    <el-dialog title="添加章节" :visible.sync="dialogFormVisible">
+      <el-form :model="chapter">
+        <el-form-item label="章节标题" :label-width="formLabelWidth">
+          <el-input v-model="chapter.title" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="章节排序" :label-width="formLabelWidth">
+          <el-input v-model="chapter.sort" :min="0" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+      </div>
+    </el-dialog>
     <!-- 章节 -->
     <ul class="chanpterList">
       <li
@@ -55,7 +71,10 @@ export default {
     return {
       saveBtnDisabled: false, // 保存按钮是否禁用
       chapterVideoList: [],
-      courseId: ''
+      courseId: '',
+      chapter: {},
+      dialogFormVisible: false,
+      formLabelWidth: '120px'
     }
   },
   created() {
