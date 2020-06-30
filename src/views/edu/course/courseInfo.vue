@@ -143,7 +143,6 @@ export default {
     }
   },
   created() {
-
     console.log('info created')
     // 查询讲师列表
     this.getTeacherList()
@@ -182,7 +181,7 @@ export default {
         }
       })
     },
-    updateCourseInfo(courseInfo){
+    updateCourseInfo(courseInfo) {
       const checkedNodes = this.$refs['subjectNode'].getCheckedNodes()
       // 一级分类id
       this.courseInfo.subjectParentId = checkedNodes[0].value
@@ -197,7 +196,7 @@ export default {
                 type: 'success',
                 message: '修改课程信息成功！'
               })
-              this.$router.push({ path: '/course/chapter/' + this.courseId  })
+              this.$router.push({ path: '/course/chapter/' + this.courseId })
             })
         } else {
           return false
@@ -265,12 +264,12 @@ export default {
       return fileType && isLt2M
     },
 
-    //判断添加还是修改
+    // 判断添加还是修改
 
-    ifUpdateOrsave(courseInfo){
-      if (!this.courseInfo.id){
+    ifUpdateOrsave(courseInfo) {
+      if (!this.courseInfo.id) {
         this.saveCourseInfo(courseInfo)
-      }else {
+      } else {
         this.updateCourseInfo(courseInfo)
       }
     }
