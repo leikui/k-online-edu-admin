@@ -1,10 +1,10 @@
 <template>
   <div>
-    <el-form :inline="true" :model="teacherQuery" class="demo-form-inline form_margin_top">
+    <el-form :inline="true" :model="courseQuery" class="demo-form-inline form_margin_top">
       <el-form-item label="课程名称">
-        <el-input v-model="courseQuery.name" size="small" style="width: 100px" maxlength="10" placeholder="课程名称" />
+        <el-input v-model="courseQuery.title" size="small" style="width: 100px" maxlength="10" placeholder="课程名称" />
       </el-form-item>
-      <el-form-item label="级别" class="input_size_form">
+      <el-form-item label="课程状态" class="input_size_form">
         <el-select v-model="courseQuery.status" placeholder="课程状态" size="small" style="width: 100px">
           <el-option label="已发布" value="Normal" />
           <el-option label="未发布" value="Draft" />
@@ -12,7 +12,7 @@
       </el-form-item>
       <el-form-item label="开始时间" size="small">
         <el-date-picker
-          v-model="teacherQuery.begin"
+          v-model="courseQuery.begin"
           type="datetime"
           placeholder="选择日期时间"
           align="right"
@@ -21,7 +21,7 @@
       </el-form-item>
       <el-form-item label="结束时间" size="small">
         <el-date-picker
-          v-model="teacherQuery.end"
+          v-model="courseQuery.end"
           type="datetime"
           placeholder="选择日期时间"
           align="right"
@@ -29,10 +29,10 @@
         />
       </el-form-item>
       <el-button type="danger" size="small" @click="resetForm">重置</el-button>
-      <el-button type="primary" size="small" @click="getTeacherList">查询</el-button>
+      <el-button type="primary" size="small" @click="getCourseList">查询</el-button>
     </el-form>
     <el-table
-      :data="teacherList"
+      :data="courseList"
       border
       style="width: 100%"
     >
@@ -46,41 +46,41 @@
         </template>
       </el-table-column>
       <el-table-column
-        prop="name"
-        label="姓名"
-        width="100"
+        prop="title"
+        label="课程名称"
+        width="200"
         align="center"
       />
       <el-table-column
-        prop="intro"
-        label="讲师简介"
+        prop="buyCount"
+        label="销售数量"
         align="center"
         :show-overflow-tooltip="true"
       />
 
       <el-table-column
-        prop="career"
-        label="讲师资历"
-        align="center"
-        width="150"
-      />
-      <el-table-column
-        label="头衔"
+        prop="lessonNum"
+        label="课时数"
         align="center"
         width="100"
+      />
+      <el-table-column
+        label="课程状态"
+        align="center"
+        width="150"
       >
         <template slot-scope="scope">
-          {{ scope.row.level === 1 ? "高级讲师" : "首席讲师" }}
+          {{ scope.row.status === 'Normal'? "已发布" : "未发布" }}
         </template>
       </el-table-column>
       <el-table-column
-        prop="avatar"
-        label="讲师头像"
+        prop="cover"
+        label="课程封面"
         align="center"
         width="100"
       >
         <template slot-scope="scope">
-          <el-avatar shape="square" :src="scope.row.avatar" />
+          <el-avatar shape="square" :src="scope.row.cover" />
         </template>
       </el-table-column>
       <el-table-column
@@ -90,19 +90,24 @@
         width="200"
       />
       <el-table-column
-        prop="sort"
-        label="排序"
+        prop="viewCount"
+        label="浏览数量"
         align="center"
-        width="50"
+        width="100"
       />
       <el-table-column
-        prop="sort"
+        prop=""
         label="操作"
         align="center"
-        width="150"
+        width="200"
       >
         <template slot-scope="scope">
-          <el-tooltip class="item" effect="dark" content="修改" placement="top">
+          <el-tooltip class="item" effect="dark" content="编辑课程基本信息" placement="top">
+            <router-link :to="'/teacher/update/' + scope.row.id">
+              <el-button type="primary" icon="el-icon-edit" size="small" />
+            </router-link>
+          </el-tooltip>
+          <el-tooltip class="item" effect="dark" content="编辑课程大纲" placement="top">
             <router-link :to="'/teacher/update/' + scope.row.id">
               <el-button type="primary" icon="el-icon-edit" size="small" />
             </router-link>
@@ -142,21 +147,21 @@ export default {
       pageSize: 10,
       pageSizes: [5, 10, 20, 30, 50],
       courseQuery: {},
-      teacherList: null
+      courseList: null
     }
   },
 
   // 页面渲染之前
   created() {
-    this.getTeacherList()
+    this.getCourseList()
   },
 
   methods: {
-    getTeacherList() {
-      teacher.getTeacherListByPage(this.page, this.pageSize, this.teacherQuery)
+    getCourseList() {
+      course.getCourseListByPage(this.page, this.pageSize, this.courseQuery)
         .then(res => {
           console.log(res)
-          this.teacherList = res.data.teachers
+          this.courseList = res.data.courseList
           this.total = res.data.total
           console.log(this.teacherList)
           console.log(this.total)
@@ -168,19 +173,19 @@ export default {
     // 改变页面条数
     handleSizeChange(pageSize) {
       this.pageSize = pageSize
-      this.getTeacherList()
+      this.getCourseList()
     },
     // 改变当前页
     handleCurrentChange(page) {
       this.page = page
-      this.getTeacherList()
+      this.getCourseList()
     },
     // 清除查询条件
     resetForm() {
       // 清除查询条件
-      this.teacherQuery = {}
+      this.courseQuery = {}
       // 查询所有
-      this.getTeacherList()
+      this.getCourseList()
     },
     // 删除讲师
     deleteTeacherById(id) {

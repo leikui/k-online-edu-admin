@@ -49,7 +49,7 @@ export default {
    * @param courseId
    * @returns {AxiosPromise}
    */
-  getPublishCourse(courseId){
+  getPublishCourse(courseId) {
     return request({
       url: '/eduService/course/getPublishCourseInfo/' + courseId,
       method: 'get'
@@ -65,15 +65,18 @@ export default {
       url: '/eduService/course/publishCourse/' + courseId,
       method: 'post'
     })
-
   },
   /**
-   * 查询所有课程列表
+   * 分页查询讲师列表
+   * @param {*} current 当前页
+   * @param {*} limit  记录数
+   * @param {*} teacherQuery 条件对象
    */
-  getCourseList(){
+  getCourseListByPage(current, pageSize, courseQuery) {
     return request({
-      url: '/eduService/course',
-      method: 'get'
+      url: '/eduService/course/page/' + current + '/' + pageSize,
+      method: 'post',
+      data: courseQuery
     })
   }
 
