@@ -42,6 +42,39 @@ export default {
       method: 'post',
       data: courseInfo
     })
+  },
+
+  /**
+   * 获取课程确认信息
+   * @param courseId
+   * @returns {AxiosPromise}
+   */
+  getPublishCourse(courseId){
+    return request({
+      url: '/eduService/course/getPublishCourseInfo/' + courseId,
+      method: 'get'
+    })
+  },
+
+  /**
+   * 课程最终发布
+   * @param courseId
+   */
+  publishCourse(courseId) {
+    return request({
+      url: '/eduService/course/publishCourse/' + courseId,
+      method: 'post'
+    })
+
+  },
+  /**
+   * 查询所有课程列表
+   */
+  getCourseList(){
+    return request({
+      url: '/eduService/course',
+      method: 'get'
+    })
   }
 
 }

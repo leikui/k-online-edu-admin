@@ -37,7 +37,7 @@
 
               <span class="acts">
 
-                <el-button style="" type="text" @click="openUpdateVideo(video.id)" >编辑</el-button>
+                <el-button style="" type="text" @click="openUpdateVideo(video.id)">编辑</el-button>
                 <el-button type="text" @click="removeVideo(video.id)">删除</el-button>
               </span>
             </p>
@@ -227,7 +227,7 @@ export default {
         this.updateVideo()
       }
     },
-// 弹框内容清除
+    // 弹框内容清除
     openVideoDialog() {
       this.dialogFormVisible = true
       this.chapter.title = ''
