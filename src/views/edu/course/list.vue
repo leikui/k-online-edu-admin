@@ -195,7 +195,7 @@ export default {
         type: 'warning'
       }).then(() => {
         // alert(id)
-        teacher.deleteTeacherById(id)
+        course.deleteTeacherById(id)
           .then(res => {
             this.$message({
               type: 'success',

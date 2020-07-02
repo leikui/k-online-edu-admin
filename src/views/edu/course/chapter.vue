@@ -51,7 +51,7 @@
     </div>
 
     <!-- 添加和修改章节表单 -->
-    <el-dialog :visible.sync="dialogChapterFormVisible" title="添加章节">
+    <el-dialog :visible.sync="dialogFormVisible" title="添加章节">
       <el-form :model="chapter" label-width="120px">
         <el-form-item label="章节标题">
           <el-input v-model="chapter.title" />
@@ -61,7 +61,7 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogChapterFormVisible = false">取 消</el-button>
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
         <el-button type="primary" @click="saveOrUpdate">确 定</el-button>
       </div>
     </el-dialog>
@@ -82,27 +82,28 @@
           </el-radio-group>
         </el-form-item>
 
-        <!--        <el-form-item label="上传视频">-->
-        <!--          <el-upload-->
-        <!--            :on-success="handleVodUploadSuccess"-->
-        <!--            :on-remove="handleVodRemove"-->
-        <!--            :before-remove="beforeVodRemove"-->
-        <!--            :on-exceed="handleUploadExceed"-->
-        <!--            :file-list="fileList"-->
-        <!--            :action="BASE_API+'/eduvod/video/uploadAlyiVideo'"-->
-        <!--            :limit="1"-->
-        <!--            class="upload-demo">-->
-        <!--            <el-button size="small" type="primary">上传视频</el-button>-->
-        <!--            <el-tooltip placement="right-end">-->
-        <!--              <div slot="content">最大支持1G，<br>-->
-        <!--                支持3GP、ASF、AVI、DAT、DV、FLV、F4V、<br>-->
-        <!--                GIF、M2T、M4V、MJ2、MJPEG、MKV、MOV、MP4、<br>-->
-        <!--                MPE、MPG、MPEG、MTS、OGG、QT、RM、RMVB、<br>-->
-        <!--                SWF、TS、VOB、WMV、WEBM 等视频格式上传</div>-->
-        <!--              <i class="el-icon-question"/>-->
-        <!--            </el-tooltip>-->
-        <!--          </el-upload>-->
-        <!--        </el-form-item>-->
+        <el-form-item label="上传视频">
+          <el-upload
+            :on-success="handleVodUploadSuccess"
+            :on-remove="handleVodRemove"
+            :before-remove="beforeVodRemove"
+            :on-exceed="handleUploadExceed"
+            :file-list="vodFileList"
+            :action="BASE_API+'/eduvod/video/uploadAliyunVideo'"
+            :limit="1"
+            class="upload-demo"
+          >
+            <el-button size="small" type="primary">上传视频</el-button>
+            <el-tooltip placement="right-end">
+              <div slot="content">最大支持1G，<br>
+                支持3GP、ASF、AVI、DAT、DV、FLV、F4V、<br>
+                GIF、M2T、M4V、MJ2、MJPEG、MKV、MOV、MP4、<br>
+                MPE、MPG、MPEG、MTS、OGG、QT、RM、RMVB、<br>
+                SWF、TS、VOB、WMV、WEBM 等视频格式上传</div>
+              <i class="el-icon-question" />
+            </el-tooltip>
+          </el-upload>
+        </el-form-item>
 
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -131,12 +132,15 @@ export default {
         title: '',
         sort: 0,
         free: 0,
-        videoSourceId: ''
+        videoSourceId: '',
+        videoOriginalName: '' // 视频名称
       },
       dialogFormVisible: false, // 章节弹窗
       formLabelWidth: '120px',
       dialogVideoFormVisible: false, // 小节弹框
-      saveVideoBtnDisabled: false // 课时按钮是否禁用
+      saveVideoBtnDisabled: false, // 课时按钮是否禁用
+      BASE_API: process.env.VUE_APP_BASE_API,
+      vodFileList: []
     }
   },
   created() {
@@ -148,6 +152,46 @@ export default {
     this.getChapterVideo(this.courseId)
   },
   methods: {
+    // ------------------------------------上传视频-----------------------------------------
+
+    // 上传视频成功-----------------------
+    handleVodUploadSuccess(response, file, fileList) {
+      this.video.videoSourceId = response.data.videoId
+      this.video.videoOriginalName = file.name
+      // 提示信息
+      this.$notify({
+        title: '成功',
+        message: '上传视频成功',
+        type: 'success'
+      })
+    },
+    // 上传视频之前
+    handleUploadExceed() {
+      this.$message.warning('重新上传视频，请删除已有视频！')
+    },
+    // 删除之前
+    beforeVodRemove(file, fileList) {
+      return this.$confirm(`确定移除 ${file.name} ？`)
+    },
+    // 确认删除
+    handleVodRemove(file, fileList) {
+      // 调用接口删除视频
+      video.deleteAliyunVideo(this.video.videoSourceId)
+        .then(res => {
+          // 提示信息
+          this.$notify({
+            title: '成功',
+            message: '删除视频成功',
+            type: 'success'
+          })
+
+          // 清除信息
+          this.vodFileList = []
+          this.video.videoSourceId = ''
+          this.video.videoOriginalName = ''
+        })
+      console.log(file, fileList)
+    },
 
     // -------------------------------------------小节操作----------------------------------------
     // 添加小节
