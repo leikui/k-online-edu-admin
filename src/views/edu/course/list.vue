@@ -115,7 +115,7 @@
 
           <el-tooltip class="item" effect="dark" content="删除" placement="top">
             <!-- <el-button type="danger" icon="el-icon-delete" size="small" @click="deleteTeacherById(scope.row.id)" slot="reference"></el-button> -->
-            <el-button type="danger" icon="el-icon-delete" size="small" @click="deleteTeacherById(scope.row.id)" />
+            <el-button type="danger" icon="el-icon-delete" size="small" @click="deleteCourseById(scope.row.id)" />
           </el-tooltip>
         </template>
       </el-table-column>
@@ -157,6 +157,7 @@ export default {
   },
 
   methods: {
+    // 查询课程列表
     getCourseList() {
       course.getCourseListByPage(this.page, this.pageSize, this.courseQuery)
         .then(res => {
@@ -187,21 +188,21 @@ export default {
       // 查询所有
       this.getCourseList()
     },
-    // 删除讲师
-    deleteTeacherById(id) {
-      this.$confirm('此操作将永久删除该条记录, 是否继续?', '提示', {
+    // 删除课程
+    deleteCourseById(id) {
+      this.$confirm('此操作将永久删除该门课程及章节和小节, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
         // alert(id)
-        course.deleteTeacherById(id)
+        course.deleteCourseById(id)
           .then(res => {
             this.$message({
               type: 'success',
               message: '删除成功!'
             })
-            this.getTeacherList()
+            this.getCourseList()
           })
       })
     }

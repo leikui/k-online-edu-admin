@@ -224,6 +224,8 @@ export default {
             message: '修改小节成功！'
           })
           // 刷新页面
+
+          this.clearVideoDialog()
           this.getChapterVideo()
         })
     },
@@ -242,6 +244,7 @@ export default {
               message: '删除成功!'
             })
             // 刷新页面
+            this.clearVideoDialog()
             this.getChapterVideo()
           })
       })
@@ -260,6 +263,7 @@ export default {
             message: '添加小节成功！'
           })
           // 刷新页面
+          this.clearVideoDialog()
           this.getChapterVideo()
         })
     },
@@ -271,6 +275,14 @@ export default {
         this.updateVideo()
       }
     },
+
+    // 清除弹窗内容
+    clearVideoDialog() {
+      // 清除信息
+      this.vodFileList = []
+      this.video = {}
+    },
+
     // 弹框内容清除
     openVideoDialog() {
       this.dialogFormVisible = true

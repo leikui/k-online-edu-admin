@@ -24,7 +24,6 @@
 </template>
 <script>
 import courseApi from '@/api/edu/course'
-import video from '@/api/edu/video'
 export default {
   data() {
     return {
@@ -44,12 +43,12 @@ export default {
     getCoursePublish() {
       courseApi.getPublishCourse(this.courseId)
         .then(res => {
-          this.coursePublish = res.data.coursePublish
+          this.coursePublish = res.data.publishCourse
         })
     },
     previous() {
       console.log('previous')
-      this.$router.push({ path: '/course/chapter/1' })
+      this.$router.push({ path: '/course/chapter/' + this.courseId })
     },
     // 最终发布
     publish() {
@@ -63,7 +62,7 @@ export default {
           .then(res => {
             this.$message({
               type: 'success',
-              message: '修改小节成功！'
+              message: '课程发布成功！'
             })
             // 跳转到课程列表
             this.$router.push({ path: '/course/list' })
